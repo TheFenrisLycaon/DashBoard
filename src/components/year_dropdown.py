@@ -1,11 +1,13 @@
+import pandas as pd
 from dash import Dash, dcc, html
 from dash.dependencies import Input, Output
+from src.data.data_loader import DataSchema
 
 from . import ids
 
 
-def render(app: Dash) -> html.Div:
-    all_years: list[str] = ["2020", "2021", "2022", "2023"]
+def render(app: Dash, data: pd.DataFrame) -> html.Div:
+    all_years: list[str] = data[DataSchema.YEAR].tolist()
     unique_years: list[str] = sorted(set(all_years), key=int)
 
     @app.callback(
@@ -13,15 +15,15 @@ def render(app: Dash) -> html.Div:
         Input(ids.SELECT_ALL_YEARS_BUTTON, "n_clicks"),
     )
     def select_all_years(_: int) -> list[str]:
-        return all_years
+        return unique_years
 
     return html.Div(
         children=[
             html.H6("Select Year"),
             dcc.Dropdown(
                 id=ids.YEAR_DROPDOWN,
-                options=[{"label": year, "value": year} for year in all_years],
-                value=all_years,
+                options=[{"label": year, "value": year} for year in unique_years],
+                value=unique_years,
                 multi=True,
             ),
             html.Button(
